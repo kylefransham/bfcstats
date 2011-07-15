@@ -1,4 +1,4 @@
-application: rinthecloud
+application: bytownstats
 version: 1
 runtime: python
 api_version: 1
@@ -9,6 +9,11 @@ handlers:
   static_files: google-verification/\1
   upload: google-verification/(.*)
 
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /jquery
+  static_dir: jquery
 
 - url: /.*
-  script: rinthecloud.py
+  script: bfcstats.py

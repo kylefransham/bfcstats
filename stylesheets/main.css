@@ -1,4 +1,46 @@
 body {
-  font-family: Verdana, Helvetica, sans-serif;
-  background-color: #DDDDDD;
+background-color: #000000;
+text-align: center;
+font: normal 11px/18px verdana, arial, tahoma, sans-serif;
+padding-top: 10px;
+
+}
+a:link, a:visited {
+		color:#696969; 
+		text-decoration:underline;}
+		
+a:hover {
+		color:#FF0000; 
+		text-decoration:none;}
+
+#header {
+width: 1000px;
+height: 350px;
+background: #000 url("BFC-logo.jpg") no-repeat;
+background-position: top center;
+}
+
+#wrapper {
+width: 1000px;
+background: #fff;
+background-position: 0 0;
+border: solid 10px #fff;
+margin: 0 auto;
+text-align: left;
+}
+
+
+#footer {
+font-size: 10px;
+clear: both;
+width: 370px;
+margin-left: 163px;
+}
+
+#content {
+width: 980px;
+background: #fff;
+border: solid 10px #fff;
+margin: 0 auto;
+text-align: left;
 }

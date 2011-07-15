@@ -1,0 +1,393 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+	  <head>
+	  <title>BFC Stats Tracker</title>
+	  <link href="/stylesheets/main.css" rel="stylesheet" type="text/css">
+	  <link href="/stylesheets/data_table.css" rel="stylesheet" type="text/css">
+	  <link href="/stylesheets/jquery.asmselect.css" rel="stylesheet" type="text/css">
+	  <script type="text/javascript" src="/jquery/jquery.js"></script>
+	  <script type="text/javascript" src="/jquery/jquery.dataTables.js"></script>
+	  <script type="text/javascript" src="/jquery/jquery.asmselect.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			$(document).ready(function() {
+
+				$('#teamresults').dataTable( {		
+          "iDisplayLength": 20,
+					"bFilter": false,
+					"bInfo": false,
+					"bPaginate": false
+				} );
+				
+				$('#results').dataTable( {		
+					"sPaginationType": "full_numbers",
+          "iDisplayLength": 30
+				} );
+
+				$('#results2').dataTable( {		
+					"sPaginationType": "full_numbers",
+					"aaSorting": [[ 3, "desc" ]]
+				} );
+
+				$('#results3').dataTable( {		
+					"sPaginationType": "full_numbers",
+					"aaSorting": [[ 3, "desc" ]]
+				} );
+
+				$('#results4').dataTable( {		
+					"sPaginationType": "full_numbers",
+					"aaSorting": [[ 3, "desc" ]]
+				} );
+
+				$('#results5').dataTable( {		
+					"sPaginationType": "full_numbers",
+					"aaSorting": [[ 3, "desc" ]]
+				} );
+
+				$("#select1").asmSelect({
+					addItemTarget: 'bottom',
+					animate: false,
+					highlight: true,
+					sortable: false
+				} ).after($("<a href='#'> Select All</a>").click(function() {
+				$("#select1").children().attr("selected", "selected").end().change();
+				return false;
+				}));
+
+				$("#select2").asmSelect({
+					addItemTarget: 'bottom',
+					animate: false,
+					highlight: true,
+					sortable: false
+				} );
+
+				$("#select3").asmSelect({
+					addItemTarget: 'bottom',
+					animate: false,
+					highlight: true,
+					sortable: false
+				} );
+
+			} );
+
+			function toggle2(id, link) {
+			  var e = document.getElementById(id);
+ 
+			  if (e.style.display == '') {
+			    e.style.display = 'none';
+			    link.innerHTML = 'Click here to add constraints';
+			  } else {
+			    e.style.display = '';
+			    link.innerHTML = 'Collapse';
+			  }
+			}
+		</script>
+
+	  </head>
+<body>
+<div id="wrapper">
+
+<div id="header">
+
+</div>
+
+
+
+<div id="content">
+
+<h1> Constraints </h1>
+
+<div id="selector" >
+
+Choose any constraints you want to apply. Results will be updated when you press Calculate.
+<form action="/results" method="POST">
+<table border="0" align="center" cellpadding="5" cellspacing="5" border="0">
+	<tr>
+		<td>
+			Choose games: (selecting none is the same as selecting all)
+		</td>
+		<td> 
+			Only consider points where all of these players were ON the field 
+		</td> 
+     <td > 
+			Only consider points where all of these players were OFF the field 
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+		<select id=select1 name = games title="Select a game" multiple>
+		{% for game in games_to_use %}
+			 <option value="{{ game.0 }}" {{ game.1 }}>{{ game.0 }}</option>
+		{% endfor %}
+		</select>
+		</td>
+		<td valign="top">
+		<select id=select2 name = players_on multiple title="Players ON">
+		{% for player in players_to_use %}
+			 <option value="{{ player.0 }}" {{ player.1 }}>{{ player.0 }}</option>
+		{% endfor %}
+		</select>
+		</td>
+		<td valign="top">
+		<select id=select3 name = players_off multiple title="Players OFF">
+		{% for player in players_to_use %}
+			 <option value="{{ player.0 }}" {{ player.2 }}>{{ player.0 }}</option>
+		{% endfor %}
+		</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan=3 align="center" >
+			<INPUT TYPE=SUBMIT VALUE="                                        Calculate                                        " width="100%">
+		</td>
+	</tr>
+</table>
+</form>
+</div>
+<a href="#" onclick="toggle2('selector', this)"> Collapse </a>
+</div>
+
+<hr>
+
+<div id=content>
+<h1> Team Results</h1>
+The results below reflect the constraints above.  For example, if you've selected a player named John, only the points that John was on the field are considered in all of the results below.
+
+<h2> Game Diagrams: </h2>
+Hover over each point to get the score and players.
+<table border=0 cellspacing=5 cellpadding=5>
+<tr><td>Legend:</td><td> Offense Scored (either team) </td> <td bgcolor="#0000FF"></td></tr>
+<tr><td></td><td> Our Defense Scored </td> <td bgcolor="#00FF00"></td></tr>
+<tr><td></td><td> Their Defense Scored </td> <td bgcolor="#FF0000"></td></tr>
+</table>
+
+<table border=0 cellspacing=15 cellpadding=5>
+{% for diagram in game_diagrams %}
+<tr> <td>{{ diagram.0 }} </td> 
+<td> {{ diagram.1 }} </td></tr>
+{% endfor %}
+</table>
+
+
+<h2> Summary </h2>
+<table border="0" cellpadding="0" cellspacing="0" id="teamresults2" class="display" > 
+	<thead>
+		<tr> 
+			<th rowspan = 2> Player </th>
+			<th colspan = 3> Offense </th>
+			<th colspan = 3> Defense </th>
+		</tr>
+		<tr>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td> {{team_effs.0}} </td>
+			<td align=center> {{team_effs.1}} </td>
+			<td align=center> {{team_effs.2}} </td>
+			<td align=center> {{team_effs.3}} </td>
+			<td align=center> {{team_effs.4}} </td>
+			<td align=center> {{team_effs.5}} </td>
+			<td align=center> {{team_effs.6}} </td>
+		</tr>
+	</tbody>
+</table>
+<br><br>
+</div>
+
+<hr>
+<div id="content">
+<h1> Player Results </h1>
+
+<table border="0" cellpadding="0" cellspacing="0" id="results" class="display" > 
+	<thead>
+		<tr> 
+			<th rowspan = 2> Player </th>
+			<th colspan = 3> Offense </th>
+			<th colspan = 3> Defense </th>
+		</tr>
+		<tr>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for results in player_effs %}
+		<tr>
+			<td> {{ results.0 }} </td>
+			<td align="center"> {{ results.1 }} </td>
+			<td align="center"> {{ results.2 }} </td>
+			<td align="center"> {{ results.3 }} </td>
+			<td align="center"> {{ results.4 }} </td>
+			<td align="center"> {{ results.5 }} </td>
+			<td align="center"> {{ results.6 }} </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+  <tfoot>
+	</tfoot>
+</table>
+
+</div>
+
+<div id="content">
+<br><br><br>
+<h1> Combinations of Two players </h1>
+
+
+
+<table border="0" align="center" cellpadding="5" cellspacing="5" border="0">
+	<tr>
+		<td align="center" valign="middle">
+
+<table border="0" cellpadding="0" cellspacing="0" id="results2" class="display" > 
+	<thead>
+		<tr> 
+			<th colspan = 4> Offense </th>
+		</tr>
+		<tr>
+			<th> Players </th>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for result in two_players_o %}
+		<tr>
+			<td> {{ result.0 }} </td>
+			<td align="center"> {{ result.1 }} </td>
+			<td align="center"> {{ result.2 }} </td>
+			<td align="center"> {{ result.3 }} </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	<tfoot>
+	</tfoot>
+</table>
+
+		</td>
+		<td align="center" valign="middle">
+
+<table border="0" cellpadding="0" cellspacing="0" id="results3" class="display" > 
+	<thead>
+		<tr> 
+			<th colspan = 4> Defense </th>
+		</tr>
+		<tr>
+			<th> Players </th>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for result in two_players_d %}
+		<tr>
+			<td> {{ result.0 }} </td>
+			<td align="center"> {{ result.1 }} </td>
+			<td align="center"> {{ result.2 }} </td>
+			<td align="center"> {{ result.3 }} </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	<tfoot>
+	</tfoot>
+</table>	
+		</td>
+	</tr>
+</table>
+
+
+<br><br><br>
+</div>
+
+
+<h1> Combinations of Three players </h1>
+
+
+
+<table border="0" align="center" cellpadding="5" cellspacing="5" border="0">
+	<tr>
+		<td align="center" valign="middle">
+
+<table border="0" cellpadding="0" cellspacing="0" id="results4" class="display" > 
+	<thead>
+		<tr> 
+			<th colspan = 4> Offense </th>
+		</tr>
+		<tr>
+			<th> Players </th>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for result in three_players_o %}
+		<tr>
+			<td> {{ result.0 }} </td>
+			<td align="center"> {{ result.1 }} </td>
+			<td align="center"> {{ result.2 }} </td>
+			<td align="center"> {{ result.3 }} </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	<tfoot>
+	</tfoot>
+</table>
+
+		</td>
+		<td align="center" valign="middle">
+
+<table border="0" cellpadding="0" cellspacing="0" id="results5" class="display" > 
+	<thead>
+		<tr> 
+			<th colspan = 4> Defense </th>
+		</tr>
+		<tr>
+			<th> Players </th>
+			<th> Played </th>
+			<th> Scored </th>
+			<th> Efficiency </th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for result in three_players_d %}
+		<tr>
+			<td> {{ result.0 }} </td>
+			<td align="center"> {{ result.1 }} </td>
+			<td align="center"> {{ result.2 }} </td>
+			<td align="center"> {{ result.3 }} </td>
+		</tr>
+		{% endfor %}
+	</tbody>
+	<tfoot>
+	</tfoot>
+</table>	
+		</td>
+	</tr>
+</table>
+
+
+<br><br><br>
+</div>
+
+
+
+</div>
+</div>
+</body>
+</html>
+
+
+

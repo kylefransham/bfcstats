@@ -379,6 +379,9 @@ class GamePage(webapp.RequestHandler):
         dpoints=0
         oscored=0
         dscored=0
+        turnovers=0
+        oposs=0
+        dposs=0
         global games
         
         # iterate over the games
@@ -410,14 +413,21 @@ class GamePage(webapp.RequestHandler):
                     continue
                 
                 #if we reach this point, we're good!
+                oposs += game.turnovers[i]
+                dposs += game.turnovers[i]
+                turnovers += game.turnovers[i]
+                
                 if game.on_offense[i]:
                     opoints += 1
                     if game.scored[i]:
                         oscored += 1
+                        oposs += 1
                 else:
                     dpoints += 1
+                    dposs += 1
                     if game.scored[i]:
                         dscored += 1
+                        oposs += 1
         oeff = 0
         if opoints:
             oeff = oscored/opoints
@@ -425,7 +435,7 @@ class GamePage(webapp.RequestHandler):
         if dpoints:
             deff = dscored/dpoints
         
-        return ("TEAM", opoints,  oscored,  "%.2f" % oeff, dpoints,  dscored, "%.2f" % deff) 
+        return ("TEAM", opoints,  oscored,  "%.2f" % oeff, dpoints,  dscored, "%.2f" % deff,  ) 
     
     def calculate_player_efficiency(self, player_name,  games_to_use=None,  players_on=None, players_off=None):
         opoints=0

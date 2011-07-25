@@ -26,13 +26,14 @@ class Game:
         self.reached_half = False
         self.name = gamename
         self.half_at = half_at
+        self.turnovers=[]
      
         for player in players:
             self.players[player] = []
 
 		
 		   
-    def add_point(self, players_on,  scored):
+    def add_point(self, players_on,  scored, turnovers):
         
         #determine if we're on O or on d
         #is this the first point?
@@ -62,7 +63,9 @@ class Game:
             else:
                 tally.append(False)
                 
-		
+        #update turnover information
+        self.turnovers.append(turnovers)
+        
 	#for testing only...
     def print_game(self):
         print  "Players: \n"
@@ -333,6 +336,7 @@ class GamePage(webapp.RequestHandler):
         started_on_o = False
         this_games_players={}
         half_at = 8
+        turnovers = {}
         for row in feed.entry:
             if row.title.text.strip() == "Scored":
                 scored = row.content.text 
@@ -341,8 +345,13 @@ class GamePage(webapp.RequestHandler):
                 started_on_o = True
                 continue
             elif row.title.text == "half_at":
-				half_at = int(row.content.text.split(':')[1].strip())
-				continue
+                half_at = int(row.content.text.split(':')[1].strip())
+                continue
+            elif row.title.text == "turnovers":
+                bits = row.content.text.split(',');
+                for bit in bits:
+                    onepoint = bit.split(':')
+                    turnovers[onepoint[0]]=onepoint[1]
             players[row.title.text] = row.content.text
             this_games_players[row.title.text] = row.content.text
         
@@ -352,11 +361,16 @@ class GamePage(webapp.RequestHandler):
             #print '<div>'+point+'</div>'
             players_on = []
             bits = point.split(':')
+            turns = 0
+            try:
+                turns = int(turnovers[bits[0]])
+            except KeyError:
+                pass
             for player in this_games_players.keys():
                 #print '<div>'+player+'</div>'
                 if bits[0].strip() in players[player]:
                     players_on.append(player)
-            newgame.add_point(players_on,  int(bits[1].strip()))
+            newgame.add_point(players_on,  int(bits[1].strip()), turns)
         
         return newgame,  players
     

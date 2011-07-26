@@ -4,10 +4,12 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app, login_required
 from google.appengine.ext.webapp import template
 from google.appengine.api import users
+from google.appengine.ext import db
 import gdata.gauth
 import gdata.spreadsheets.client
 import cgi
 import os
+import string
 
 #global variables
 games = []
@@ -122,6 +124,10 @@ class Fetcher(webapp.RequestHandler):
         self.response.out.write(template.render(path, template_values))
 
 
+class SpreadsheetKey(db.Model):
+    current_user = db.UserProperty()
+    current_sheet = db.StringProperty(required=True)
+    
     
 class MainPage(webapp.RequestHandler):
 
@@ -138,9 +144,20 @@ class MainPage(webapp.RequestHandler):
         gdocs.auth_token = gdocs.get_access_token(request_token)
         access_token_key = 'access_token_%s' % current_user.user_id()
         gdata.gauth.ae_save(request_token, access_token_key)
-        feed = gdocs.GetSpreadsheets()
-        self.select_spreadsheet(feed)
-
+        self.redirect("/select")
+        
+class SpreadsheetPage(webapp.RequestHandler):
+    
+    @login_required
+    def get(self):
+        try:
+            current_user = users.get_current_user()
+            access_token_key = 'access_token_%s' % current_user.user_id()
+            gdocs.auth_token =gdata.gauth.ae_load(access_token_key)
+            feed = gdocs.GetSpreadsheets()
+            self.select_spreadsheet(feed)
+        except:
+            self.redirect('/step1')
     
     def select_spreadsheet(self,  feed):
         global spreadsheet_loaded
@@ -162,7 +179,7 @@ class MainPage(webapp.RequestHandler):
         for entry in feed.entry:
             selector += '<option value='+entry.id.text.rsplit('/', 1)[1]+'>'+entry.title.text+'</option>'
         selector += '</select><INPUT TYPE=SUBMIT VALUE="Select"></form> </br> Note: It can take some time to load your spreadsheet... please be patient!'
-        template_values = {'authlink': 'NULL','authtext':'Successfully Authenticated!',   'selector':selector }
+        template_values = {'authlink': None,'authtext':'Successfully Authenticated!',   'selector':selector }
         path = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(path, template_values))
         
@@ -177,14 +194,31 @@ class GamePage(webapp.RequestHandler):
         global team_effs
         global team_effs_baseline
         if not spreadsheet_loaded:
-            game_names = []
-            spreadsheet_key = cgi.escape(self.request.get('sheet'))
-            worksheets = gdocs.GetWorksheets(spreadsheet_key)
-            for sheet in worksheets.entry:
-                game,  players = self.create_game(spreadsheet_key, sheet.id.text.rsplit('/', 1)[1] ,  sheet.title.text, players)
-                games.append(game)
-                game_names.append(sheet.title.text)
-            spreadsheet_loaded = True
+            try:
+                game_names = []
+                spreadsheet_key = cgi.escape(self.request.get('sheet'))
+                
+                #if the spreadsheet key is not loaded, try to retrieve it from the datastore:
+                if not spreadsheet_key:
+                    current_user = [users.get_current_user()]
+                    query_result = db.GqlQuery("SELECT * FROM SpreadsheetKey WHERE current_user IN :1", current_user)
+                    spreadsheet_key = query_result[0].current_sheet
+                           
+                #re-initialize the token
+                current_user = users.get_current_user()
+                access_token_key = 'access_token_%s' % current_user.user_id()
+                gdocs.auth_token =gdata.gauth.ae_load(access_token_key)
+                
+                worksheets = gdocs.GetWorksheets(spreadsheet_key)
+                for sheet in worksheets.entry:
+                    game,  players = self.create_game(spreadsheet_key, sheet.id.text.rsplit('/', 1)[1] ,  sheet.title.text, players)
+                    games.append(game)
+                    game_names.append(sheet.title.text)
+                spreadsheet_loaded = True
+            except:
+                path = os.path.join(os.path.dirname(__file__), 'error.html')
+                self.response.out.write(template.render(path,  None))
+                return None
                
         player_effs = []
         
@@ -338,16 +372,18 @@ class GamePage(webapp.RequestHandler):
         half_at = 8
         turnovers = {}
         for row in feed.entry:
-            if row.title.text.strip() == "Scored":
+            if not row.content.text:
+                continue
+            if string.lower(row.title.text) == "scored":
                 scored = row.content.text 
                 continue
-            elif row.title.text == "started_on_o":
+            elif string.lower(row.title.text) == "started_on_o":
                 started_on_o = True
                 continue
-            elif row.title.text == "half_at":
+            elif string.lower(row.title.text) == "half_at":
                 half_at = int(row.content.text.split(':')[1].strip())
                 continue
-            elif row.title.text == "turnovers":
+            elif string.lower(row.title.text) == "turnovers":
                 bits = row.content.text.split(',');
                 for bit in bits:
                     onepoint = bit.split(':')
@@ -568,10 +604,20 @@ class GamePage(webapp.RequestHandler):
                     
         return (all_combos_o, all_combos_d)
 
+class LaunchPage(webapp.RequestHandler):
+    
+    @login_required
+    def get(self):
+        current_user = users.get_current_user()
+        access_token_key = 'access_token_%s' % current_user.user_id()  
+        access_token = gdata.gauth.ae_load(access_token_key)
+        self.redirect("/select")
         
 def main():
-    application = webapp.WSGIApplication([('/', Fetcher),
+    application = webapp.WSGIApplication([('/', LaunchPage), 
+                                          ('/step1', Fetcher),
                                           ('/step2', MainPage),
+                                          ('/select', SpreadsheetPage),
                                           ('/results', GamePage)],
                                          debug=True)
     run_wsgi_app(application)

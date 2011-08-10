@@ -2,7 +2,7 @@
 <html>
 	  <head>
 	  <title>BFC Stats Tracker</title>
-	  <link href="/stylesheets/main.css" rel="stylesheet" type="text/css">
+	  <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
 	  <link href="/stylesheets/data_table.css" rel="stylesheet" type="text/css">
 	  <link href="/stylesheets/jquery.asmselect.css" rel="stylesheet" type="text/css">
 	  <script type="text/javascript" src="/jquery/jquery.js"></script>
@@ -86,89 +86,98 @@
 <body>
 <div id="wrapper">
 
-<div id="header">
 
+
+
+<div id="header">
 </div>
 
 
+<div id="menu">
+	<ul>
+		<li class="current_page_item"><a href="http://bytownstats.appspot.com">Load new spreadsheet</a></li>
+		<li class="current_page_item"><a href="#summary">Team results</a></li>
+		<li class="current_page_item"><a href="#player_results">Individual results</a></li>
+		<li class="current_page_item"><a href="#two_players">Combinations of two players</a></li>
+		<li class="current_page_item"><a href="#three_players">Combinations of three players</a></li>
+	</ul>
+</div>
 
-<div id="content">
-
-<h1> Constraints </h1>
-
-<div id="selector" >
-
-Choose any constraints you want to apply. Results will be updated when you press Calculate.
+<div id="sidebar"><div class="post"><div class="bg1"><div class="bgs2"><div class="bgs3">
+<div class="entry">
+<h2 class="title"> Constraints </h2>
+<p>Choose any constraints you want to apply. Results will be updated when you press Calculate.
 <form action="/results" method="POST">
-<table border="0" align="center" cellpadding="5" cellspacing="5" border="0">
-	<tr>
-		<td>
-			Choose games: (selecting none is the same as selecting all)
-		</td>
-		<td> 
-			Only consider points where all of these players were ON the field 
-		</td> 
-     <td > 
-			Only consider points where all of these players were OFF the field 
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">
-		<select id=select1 name = games title="Select a game" multiple>
+		<INPUT TYPE=SUBMIT VALUE="   Calculate   " width="100%">
+		<hr>
+		</div>
+		<h3 class="title"> Games </h3>
+		<div class="entry">
+		<p>Choose games: (selecting none is the same as selecting all)</p>
+		<select id=select1 name = games title="Select games" multiple>
 		{% for game in games_to_use %}
 			 <option value="{{ game.0 }}" {{ game.1 }}>{{ game.0 }}</option>
 		{% endfor %}
 		</select>
-		</td>
-		<td valign="top">
+		<hr>
+		</div>
+
+		<h3 class="title"> players on</h3>
+		<div class="entry">
+		<p>Only consider points where all of these players were ON the field</p>
 		<select id=select2 name = players_on multiple title="Players ON">
 		{% for player in players_to_use %}
 			 <option value="{{ player.0 }}" {{ player.1 }}>{{ player.0 }}</option>
 		{% endfor %}
 		</select>
-		</td>
-		<td valign="top">
+		<hr>
+		</div>
+
+		<h3 class="title"> players off </h3>
+		<div class="entry">
+		<p>Only consider points where all of these players were OFF the field </p>
 		<select id=select3 name = players_off multiple title="Players OFF">
 		{% for player in players_to_use %}
 			 <option value="{{ player.0 }}" {{ player.2 }}>{{ player.0 }}</option>
 		{% endfor %}
 		</select>
-		</td>
-	</tr>
-	<tr>
-		<td colspan=3 align="center" >
-			<INPUT TYPE=SUBMIT VALUE="                                        Calculate                                        " width="100%">
-		</td>
-	</tr>
-</table>
+		<hr>
+		</div>
+
+		<div class="entry">
+		<INPUT TYPE=SUBMIT VALUE="   Calculate   " width="100%">
+		</div>
+		
 </form>
-</div>
-<a href="#" onclick="toggle2('selector', this)"> Collapse </a>
-</div>
+</div></div></div></div></div>
 
-<hr>
 
-<div id=content>
-<h1> Team Results</h1>
-The results below reflect the constraints above.  For example, if you've selected a player named John, only the points that John was on the field are considered in all of the results below.
 
-<h2> Game Diagrams: </h2>
+<div id=content><div class="post"><div class="bg1"><div class="bg2"><div class="bg3">
+
+<h2 class="title"> Game Diagrams: </h2>
+<div class="entry">
+<br>
 Hover over each point to get the score and players.
-<table border=0 cellspacing=5 cellpadding=5>
-<tr><td>Legend:</td><td> Offense Scored (either team) </td> <td bgcolor="#0000FF"></td></tr>
-<tr><td></td><td> Our Defense Scored </td> <td bgcolor="#00FF00"></td></tr>
-<tr><td></td><td> Their Defense Scored </td> <td bgcolor="#FF0000"></td></tr>
-</table>
+	<table border=0 cellspacing=5 cellpadding=5>
+	<tr><td>Legend:</td><td> Offense Scored (either team) </td> <td bgcolor="#0000FF"></td></tr>
+	<tr><td></td><td> Our Defense Scored </td> <td bgcolor="#00F000"></td></tr>
+	<tr><td></td><td> Their Defense Scored </td> <td bgcolor="#FF0000"></td></tr>
+	</table>
 
-<table border=0 cellspacing=15 cellpadding=5>
-{% for diagram in game_diagrams %}
-<tr> <td>{{ diagram.0 }} </td> 
-<td> {{ diagram.1 }} </td></tr>
-{% endfor %}
-</table>
+	<table border=0 cellspacing=15 cellpadding=5>
+	{% for diagram in game_diagrams %}
+	<tr> <td>{{ diagram.0 }} </td> 
+	<td> {{ diagram.1 }} </td></tr>
+	{% endfor %}
+	</table>
+</div>
+</div></div></div></div></div>
 
-
-<h2> Summary </h2>
+<div id=content><div class="post"><div class="bg1"><div class="bg2"><div class="bg3">
+<a name="summary"></a>
+<h2 class="title"> Team Results </h2>
+<div class="entry">
 <table border="0" cellpadding="0" cellspacing="0" id="teamresults2" class="display" > 
 	<thead>
 		<tr> 
@@ -197,13 +206,15 @@ Hover over each point to get the score and players.
 		</tr>
 	</tbody>
 </table>
-<br><br>
 </div>
 
-<hr>
-<div id="content">
-<h1> Player Results </h1>
+</div></div></div></div></div>
 
+<div id=content><div class="post"><div class="bg1"><div class="bg2"><div class="bg3">
+<a name="player_results"></a>
+
+<h2 class="title"> Player Results </h2>
+<div class="entry">
 <table border="0" cellpadding="0" cellspacing="0" id="results" class="display" > 
 	<thead>
 		<tr> 
@@ -236,19 +247,14 @@ Hover over each point to get the score and players.
   <tfoot>
 	</tfoot>
 </table>
-
+</br></br>.
 </div>
+</div></div></div></div></div>
+<div id=content><div class="post"><div class="bg1"><div class="bg2"><div class="bg3">
+<a name="two_players"></a>
 
-<div id="content">
-<br><br><br>
-<h1> Combinations of Two players </h1>
-
-
-
-<table border="0" align="center" cellpadding="5" cellspacing="5" border="0">
-	<tr>
-		<td align="center" valign="middle">
-
+<h2 class="title"> Combinations of Two players </h2>
+<div class="entry">
 <table border="0" cellpadding="0" cellspacing="0" id="results2" class="display" > 
 	<thead>
 		<tr> 
@@ -275,9 +281,6 @@ Hover over each point to get the score and players.
 	</tfoot>
 </table>
 
-		</td>
-		<td align="center" valign="middle">
-
 <table border="0" cellpadding="0" cellspacing="0" id="results3" class="display" > 
 	<thead>
 		<tr> 
@@ -302,92 +305,26 @@ Hover over each point to get the score and players.
 	</tbody>
 	<tfoot>
 	</tfoot>
-</table>	
-		</td>
-	</tr>
 </table>
-
-
-<br><br><br>
+</br></br>.
 </div>
+</div></div></div></div></div>	
 
-
-<h1> Combinations of Three players </h1>
-
-
-
-<table border="0" align="center" cellpadding="5" cellspacing="5" border="0">
-	<tr>
-		<td align="center" valign="middle">
-
-<table border="0" cellpadding="0" cellspacing="0" id="results4" class="display" > 
-	<thead>
-		<tr> 
-			<th colspan = 4> Offense </th>
-		</tr>
-		<tr>
-			<th> Players </th>
-			<th> Played </th>
-			<th> Scored </th>
-			<th> Efficiency </th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for result in three_players_o %}
-		<tr>
-			<td> {{ result.0 }} </td>
-			<td align="center"> {{ result.1 }} </td>
-			<td align="center"> {{ result.2 }} </td>
-			<td align="center"> {{ result.3 }} </td>
-		</tr>
-		{% endfor %}
-	</tbody>
-	<tfoot>
-	</tfoot>
-</table>
-
-		</td>
-		<td align="center" valign="middle">
-
-<table border="0" cellpadding="0" cellspacing="0" id="results5" class="display" > 
-	<thead>
-		<tr> 
-			<th colspan = 4> Defense </th>
-		</tr>
-		<tr>
-			<th> Players </th>
-			<th> Played </th>
-			<th> Scored </th>
-			<th> Efficiency </th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for result in three_players_d %}
-		<tr>
-			<td> {{ result.0 }} </td>
-			<td align="center"> {{ result.1 }} </td>
-			<td align="center"> {{ result.2 }} </td>
-			<td align="center"> {{ result.3 }} </td>
-		</tr>
-		{% endfor %}
-	</tbody>
-	<tfoot>
-	</tfoot>
-</table>	
-		</td>
-	</tr>
-</table>
-
-
-<br><br><br>
+<a name="three_players"></a>
 </div>
-
-
-
+<div id="footer_wrapper">
+	<div id="footer">
+	<p>Thanks!</p>
+	</div>
 </div>
 </div>
+
+
+
 </body>
 </html>
+
+
 
 
 

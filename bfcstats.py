@@ -306,15 +306,15 @@ class GamePage(webapp.RequestHandler):
 		except KeyError:
 		    continue
 	    
-	    our_color = '#FFFFFF'
-	    their_color = '#FFFFFF'
+	    our_color = '#C0C0C0'
+	    their_color = '#C0C0C0'
 		
 	    if game.scored[i]:
 		we_scored += 1
 		if game.on_offense[i]:
 		    our_color = '#0000FF'
 		else:
-		    our_color = '#00FF00'
+		    our_color = '#00F000'
 	    else:
 		they_scored += 1
 		if game.on_offense[i]:
@@ -329,8 +329,8 @@ class GamePage(webapp.RequestHandler):
 			if not game.players[constraint][i]:
 			    raise KeyError('please continue!')
 	    except KeyError:
-		our_color = '#FFFFFF'
-		their_color = '#FFFFFF'
+		our_color = '#COCOCO'
+		their_color = '#COCOCO'
 		pass
 	    try:
 		#check players_off constraint:
@@ -343,8 +343,8 @@ class GamePage(webapp.RequestHandler):
 		pass
 	    #if the player WAS on the field, we don't record the scores for this point.
 	    except AssertionError:
-		our_color = '#FFFFFF'
-		their_color = '#FFFFFF'
+		our_color = '#COCOCO'
+		their_color = '#COCOCO'
 		pass
 		
 	    title = ' title = "'+str(we_scored) + ' - ' + str(they_scored) + title + '"'

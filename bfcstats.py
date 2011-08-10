@@ -372,8 +372,6 @@ class GamePage(webapp.RequestHandler):
         half_at = 8
         turnovers = {}
         for row in feed.entry:
-            if not row.content.text:
-                continue
             if string.lower(row.title.text) == "scored":
                 scored = row.content.text 
                 continue
